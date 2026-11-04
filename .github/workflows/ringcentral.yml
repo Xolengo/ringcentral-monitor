@@ -10,11 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send message to RingCentral
+      - name: Get Access Token
+        id: token
         run: |
-          NOW=$(TZ=America/Mexico_City date '+%Y-%m-%d %H:%M:%S')
 
-          curl -X POST "https://platform.ringcentral.com/restapi/v1.0/glip/chats/1395489136642/posts" \
-          -H "Authorization: Bearer ${{ secrets.RINGCENTRAL_BEARER_TOKEN }}" \
+          RESPONSE=$(curl -s -X POST "https://platform.ringcentral.com/restapi/oauth/token" \
+          -u "${{ secrets.RINGCENTRAL_CLIENT_ID }}:${{ secrets.RINGCENTRAL_CLIENT_SECRET }}" \
+          -H "Content-Type: application/x-www-form-urlencoded" \
+          -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${{ secrets.RINGCENTRAL_JWT }}")
+
+          ACCESS_TOKEN=$(echo "$RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])")
+
+          echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
+
+      - name: Send Message
+        run: |
+
+          NOW=$(TZ=America/Mexico_City date '+%d/%m/%Y %H:%M:%S')
+
+          curl -X POST "https://platform.ringcentral.com/restapi/v1.0/glip/chats/${{ secrets.RINGCENTRAL_CHAT_ID }}/posts" \
+          -H "Authorization: Bearer $ACCESS_TOKEN" \
           -H "Content-Type: application/json" \
-          -d "{\"text\":\"🕒 GitHub Actions - $NOW\"}"
+          -d "{\"text\":\"🕒 Hora CDMX: $NOW\"}"
