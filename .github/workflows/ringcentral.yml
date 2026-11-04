@@ -1,0 +1,20 @@
+name: RingCentral Monitor
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  send-message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send message to RingCentral
+        run: |
+          NOW=$(date)
+
+          curl -X POST "https://platform.ringcentral.com/restapi/v1.0/glip/chats/1395489136642/posts" \
+          -H "Authorization: Bearer ${{ secrets.RINGCENTRAL_BEARER_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d "{\"text\":\"🕒 GitHub Actions - $NOW\"}"
