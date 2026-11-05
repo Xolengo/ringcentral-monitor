@@ -9,8 +9,19 @@ jobs:
 
     steps:
 
-    - name: Consultar llamadas
+    - name: Consultar y resumir llamadas
       run: |
-        curl -s \
+        RESPONSE=$(curl -s \
         "https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/call-log?view=Simple" \
-        -H "Authorization: Bearer ${{ secrets.RINGCENTRAL_ACCESS_TOKEN }}"
+        -H "Authorization: Bearer ${{ secrets.RINGCENTRAL_ACCESS_TOKEN }}")
+
+        echo "$RESPONSE" > calls.json
+
+        echo "===== RESUMEN ====="
+
+        jq '.records[] | {
+          fecha: .startTime,
+          direccion: .direction,
+          duracion: .duration,
+          resultado: .result
+        }' calls.json
