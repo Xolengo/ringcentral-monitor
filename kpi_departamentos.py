@@ -38,8 +38,19 @@ data = response.json()
 
 print(f"✅ Extensiones encontradas: {len(data['records'])}")
 
-for ext in data["records"][:5]:
-    nombre = ext.get("name")
-    depto = ext.get("contact", {}).get("department", "Sin departamento")
+dept_map = {}
 
-    print(f"{nombre} -> {depto}")
+for ext in data["records"]:
+    ext_id = str(ext["id"])
+
+    depto = ext.get("contact", {}).get(
+        "department",
+        "Sin departamento"
+    )
+
+    dept_map[ext_id] = depto
+
+print(f"✅ Departamentos cargados: {len(dept_map)}")
+
+for ext_id, depto in list(dept_map.items())[:5]:
+    print(f"{ext_id} -> {depto}")
