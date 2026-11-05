@@ -26,12 +26,13 @@ print("✅ Access Token obtenido")
 
 # Obtener extensiones
 response = requests.get(
-    "https://platform.ringcentral.com/restapi/v1.0/account/~/extension?perPage=1000",
+    "https://platform.ringcentral.com/restapi/v1.0/account/~/extension",
     headers={
         "Authorization": f"Bearer {access_token}"
     }
 )
-
+print(response.status_code)
+print(response.text[:1000])
 response.raise_for_status()
 
 data = response.json()
