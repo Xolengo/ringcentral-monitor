@@ -11,34 +11,21 @@ jobs:
 
     steps:
 
-      - name: Get Access Token
-        run: |
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-          RESPONSE=$(curl -s -X POST "https://platform.ringcentral.com/restapi/oauth/token" \
-          -u "${{ secrets.RINGCENTRAL_CLIENT_ID }}:${{ secrets.RINGCENTRAL_CLIENT_SECRET }}" \
-          -H "Content-Type: application/x-www-form-urlencoded" \
-          -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${{ secrets.RINGCENTRAL_JWT }}")
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-          ACCESS_TOKEN=$(echo "$RESPONSE" | jq -r '.access_token')
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
 
-          echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
-
-      - name: Get Call Summary
-        run: |
-
-          RESPONSE=$(curl -s \
-          "https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/call-log?view=Simple" \
-          -H "Authorization: Bearer $ACCESS_TOKEN")
-
-          TOTAL=$(echo "$RESPONSE" | jq '.records | length')
-
-          echo "TOTAL=$TOTAL" >> $GITHUB_ENV
-
-      - name: Send Message
-        run: |
-
-          curl -s -X POST \
-          "https://platform.ringcentral.com/restapi/v1.0/glip/chats/${{ secrets.RINGCENTRAL_CHAT_ID }}/posts" \
-          -H "Authorization: Bearer $ACCESS_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d "{\"text\":\"📞 Total de llamadas encontradas: $TOTAL\"}"
+      - name: Ejecutar KPI
+        env:
+          RINGCENTRAL_CLIENT_ID: ${{ secrets.RINGCENTRAL_CLIENT_ID }}
+          RINGCENTRAL_CLIENT_SECRET: ${{ secrets.RINGCENTRAL_CLIENT_SECRET }}
+          RINGCENTRAL_JWT: ${{ secrets.RINGCENTRAL_JWT }}
+          RINGCENTRAL_CHAT_ID: ${{ secrets.RINGCENTRAL_CHAT_ID }}
+        run: python kpi_departamentos.py
