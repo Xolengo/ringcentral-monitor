@@ -72,12 +72,10 @@ for ext in extensions:
 
     ext_id = str(ext["id"])
 
-    depto = ext.get(
-        "contact",
-        {}
-    ).get(
-        "department"
-    ) or "Sin departamento"
+    depto = (
+    ext.get("contact", {}).get("department")
+    or f"[{ext.get('type')}] {ext.get('name')}"
+    )
 
     dept_map[ext_id] = depto
 
