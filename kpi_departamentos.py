@@ -65,9 +65,47 @@ response.raise_for_status()
 calls = response.json()["records"]
 
 print(f"✅ Llamadas encontradas: {len(calls)}")
+from collections import defaultdict
 
-# Mostrar ejemplo de departamentos
-print("\nPrimeros 5 departamentos:")
+stats = defaultdict(lambda: {
+    "total": 0,
+    "connected": 0
+})
 
-for ext_id, depto in list(dept_map.items())[:5]:
-    print(f"{ext_id} -> {depto}")
+for call in calls:
+
+    ext_id = call.get("from", {}).get("extensionId")
+
+    if not ext_id:
+        continue
+
+    depto = dept_map.get(
+        str(ext_id),
+        "Sin departamento"
+    )
+
+    stats[depto]["total"] += 1
+
+    if call.get("result") == "Call connected":
+        stats[depto]["connected"] += 1
+
+print("\n📊 KPI POR DEPARTAMENTO\n")
+
+for depto, valores in sorted(
+    stats.items(),
+    key=lambda x: x[1]["total"],
+    reverse=True
+):
+
+    total = valores["total"]
+    connected = valores["connected"]
+
+    efectividad = (
+        connected / total * 100
+        if total > 0 else 0
+    )
+
+    print(f"\n{depto}")
+    print(f"Total llamadas: {total}")
+    print(f"Call connected: {connected}")
+    print(f"Efectividad: {efectividad:.1f}%")
