@@ -31,10 +31,15 @@ response = requests.get(
         "Authorization": f"Bearer {access_token}"
     }
 )
-print(response.status_code)
-print(response.text[:1000])
+
 response.raise_for_status()
 
 data = response.json()
 
 print(f"✅ Extensiones encontradas: {len(data['records'])}")
+
+for ext in data["records"][:5]:
+    nombre = ext.get("name")
+    depto = ext.get("contact", {}).get("department", "Sin departamento")
+
+    print(f"{nombre} -> {depto}")
