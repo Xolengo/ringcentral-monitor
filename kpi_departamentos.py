@@ -10,6 +10,9 @@ CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
 JWT = os.getenv("RINGCENTRAL_JWT")
 CHAT_ID = os.getenv("RINGCENTRAL_CHAT_ID")
 
+SMS_FROM = os.getenv("RINGCENTRAL_SMS_FROM")
+SMS_TO = os.getenv("RINGCENTRAL_SMS_TO")
+
 # Obtener Access Token
 response = requests.post(
     "https://platform.ringcentral.com/restapi/oauth/token",
@@ -242,3 +245,27 @@ response = requests.post(
 response.raise_for_status()
 
 print("✅ KPI enviado a RingCentral Chat")
+# Enviar SMS de prueba
+
+response = requests.post(
+    "https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/sms",
+    headers={
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    },
+    json={
+        "from": {
+            "phoneNumber": SMS_FROM
+        },
+        "to": [
+            {
+                "phoneNumber": SMS_TO
+            }
+        ],
+        "text": "Prueba SMS desde GitHub Actions"
+    }
+)
+
+response.raise_for_status()
+
+print("✅ SMS enviado")
