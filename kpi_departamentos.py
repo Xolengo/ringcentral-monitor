@@ -67,9 +67,16 @@ calls = response.json()["records"]
 print(f"✅ Llamadas encontradas: {len(calls)}")
 from collections import defaultdict
 
+from collections import defaultdict
+
 stats = defaultdict(lambda: {
     "total": 0,
-    "connected": 0
+    "connected": 0,
+    "busy": 0,
+    "no_answer": 0,
+    "hang_up": 0,
+    "wrong_number": 0,
+    "call_failed": 0
 })
 
 for call in calls:
@@ -84,10 +91,27 @@ for call in calls:
         "Sin departamento"
     )
 
+    resultado = call.get("result", "")
+
     stats[depto]["total"] += 1
 
-    if call.get("result") == "Call connected":
+    if resultado == "Call connected":
         stats[depto]["connected"] += 1
+
+    elif resultado == "Busy":
+        stats[depto]["busy"] += 1
+
+    elif resultado == "No Answer":
+        stats[depto]["no_answer"] += 1
+
+    elif resultado == "Hang Up":
+        stats[depto]["hang_up"] += 1
+
+    elif resultado == "Wrong Number":
+        stats[depto]["wrong_number"] += 1
+
+    elif resultado in ["Call Failed", "Call Failure"]:
+        stats[depto]["call_failed"] += 1
 
 print("\n📊 KPI POR DEPARTAMENTO\n")
 
@@ -107,5 +131,10 @@ for depto, valores in sorted(
 
     print(f"\n{depto}")
     print(f"Total llamadas: {total}")
-    print(f"Call connected: {connected}")
-    print(f"Efectividad: {efectividad:.1f}%")
+    print(f"✅ Connected: {valores['connected']}")
+    print(f"📞 Busy: {valores['busy']}")
+    print(f"⏳ No Answer: {valores['no_answer']}")
+    print(f"☎️ Hang Up: {valores['hang_up']}")
+    print(f"❌ Wrong Number: {valores['wrong_number']}")
+    print(f"🚨 Call Failed: {valores['call_failed']}")
+    print(f"🎯 Efectividad: {efectividad:.1f}%")
