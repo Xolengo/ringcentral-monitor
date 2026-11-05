@@ -180,6 +180,11 @@ for call in calls:
     ]:
         stats[depto]["call_failed"] += 1
 
+# Crear mensaje para RingCentral Chat
+mensaje = "📊 KPI RINGCENTRAL - AYER\n\n"
+mensaje += f"📅 Desde: {date_from}\n"
+mensaje += f"📅 Hasta: {date_to}\n\n"
+
 print("\n📊 KPI POR DEPARTAMENTO\n")
 
 for depto, valores in sorted(
@@ -205,3 +210,20 @@ for depto, valores in sorted(
     print(f"❌ Wrong Number: {valores['wrong_number']}")
     print(f"🚨 Call Failed: {valores['call_failed']}")
     print(f"🎯 Efectividad: {efectividad:.1f}%")
+
+    mensaje += (
+        f"🏢 {depto}\n"
+        f"Total llamadas: {total}\n"
+        f"✅ Connected: {valores['connected']}\n"
+        f"📞 Busy: {valores['busy']}\n"
+        f"⏳ No Answer: {valores['no_answer']}\n"
+        f"☎️ Hang Up: {valores['hang_up']}\n"
+        f"❌ Wrong Number: {valores['wrong_number']}\n"
+        f"🚨 Call Failed: {valores['call_failed']}\n"
+        f"🎯 Efectividad: {efectividad:.1f}%\n\n"
+    )
+
+print("\n==============================")
+print("MENSAJE PARA RINGCENTRAL CHAT")
+print("==============================")
+print(mensaje)
