@@ -1,6 +1,9 @@
 import os
 import requests
 
+from datetime import datetime, timedelta, timezone
+from collections import defaultdict
+
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
 JWT = os.getenv("RINGCENTRAL_JWT")
@@ -24,6 +27,26 @@ access_token = response.json()["access_token"]
 
 print("✅ Access Token obtenido")
 
+# Calcular día anterior completo
+hoy = datetime.now(timezone.utc)
+
+ayer_inicio = (
+    hoy - timedelta(days=1)
+).replace(
+    hour=0,
+    minute=0,
+    second=0,
+    microsecond=0
+)
+
+ayer_fin = ayer_inicio + timedelta(days=1)
+
+date_from = ayer_inicio.isoformat().replace("+00:00", "Z")
+date_to = ayer_fin.isoformat().replace("+00:00", "Z")
+
+print(f"📅 Desde: {date_from}")
+print(f"📅 Hasta: {date_to}")
+
 # Obtener extensiones
 response = requests.get(
     "https://platform.ringcentral.com/restapi/v1.0/account/~/extension",
@@ -42,9 +65,13 @@ print(f"✅ Extensiones encontradas: {len(extensions)}")
 dept_map = {}
 
 for ext in extensions:
+
     ext_id = str(ext["id"])
 
-    depto = ext.get("contact", {}).get(
+    depto = ext.get(
+        "contact",
+        {}
+    ).get(
         "department"
     ) or "Sin departamento"
 
@@ -52,23 +79,49 @@ for ext in extensions:
 
 print(f"✅ Departamentos cargados: {len(dept_map)}")
 
-# Obtener Call Log
-response = requests.get(
-    "https://platform.ringcentral.com/restapi/v1.0/account/~/call-log?view=Detailed&perPage=1000",
-    headers={
-        "Authorization": f"Bearer {access_token}"
-    }
-)
+# Obtener TODO el Call Log de ayer
+calls = []
+page = 1
 
-response.raise_for_status()
+while True:
 
-calls = response.json()["records"]
+    response = requests.get(
+        "https://platform.ringcentral.com/restapi/v1.0/account/~/call-log",
+        headers={
+            "Authorization": f"Bearer {access_token}"
+        },
+        params={
+            "view": "Detailed",
+            "dateFrom": date_from,
+            "dateTo": date_to,
+            "perPage": 1000,
+            "page": page
+        }
+    )
 
-print(f"✅ Llamadas encontradas: {len(calls)}")
-from collections import defaultdict
+    response.raise_for_status()
 
-from collections import defaultdict
+    data = response.json()
 
+    registros = data.get(
+        "records",
+        []
+    )
+
+    calls.extend(registros)
+
+    print(
+        f"📞 Página {page}: {len(registros)} llamadas"
+    )
+
+    if len(registros) < 1000:
+        break
+
+    page += 1
+
+print(f"✅ Total llamadas encontradas: {len(calls)}")
+
+# KPI por departamento
 stats = defaultdict(lambda: {
     "total": 0,
     "connected": 0,
@@ -81,7 +134,12 @@ stats = defaultdict(lambda: {
 
 for call in calls:
 
-    ext_id = call.get("from", {}).get("extensionId")
+    ext_id = call.get(
+        "from",
+        {}
+    ).get(
+        "extensionId"
+    )
 
     if not ext_id:
         continue
@@ -91,7 +149,10 @@ for call in calls:
         "Sin departamento"
     )
 
-    resultado = call.get("result", "")
+    resultado = call.get(
+        "result",
+        ""
+    )
 
     stats[depto]["total"] += 1
 
@@ -110,7 +171,10 @@ for call in calls:
     elif resultado == "Wrong Number":
         stats[depto]["wrong_number"] += 1
 
-    elif resultado in ["Call Failed", "Call Failure"]:
+    elif resultado in [
+        "Call Failed",
+        "Call Failure"
+    ]:
         stats[depto]["call_failed"] += 1
 
 print("\n📊 KPI POR DEPARTAMENTO\n")
