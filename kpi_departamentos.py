@@ -8,6 +8,7 @@ from collections import defaultdict
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
 JWT = os.getenv("RINGCENTRAL_JWT")
+CHAT_ID = os.getenv("RINGCENTRAL_CHAT_ID")
 
 # Obtener Access Token
 response = requests.post(
@@ -227,3 +228,19 @@ print("\n==============================")
 print("MENSAJE PARA RINGCENTRAL CHAT")
 print("==============================")
 print(mensaje)
+
+# Enviar mensaje al chat de RingCentral
+response = requests.post(
+    f"https://platform.ringcentral.com/restapi/v1.0/glip/chats/{CHAT_ID}/posts",
+    headers={
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    },
+    json={
+        "text": mensaje
+    }
+)
+
+response.raise_for_status()
+
+print("✅ KPI enviado a RingCentral Chat")
