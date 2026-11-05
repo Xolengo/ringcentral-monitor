@@ -5,6 +5,7 @@ CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
 JWT = os.getenv("RINGCENTRAL_JWT")
 
+# Obtener token
 response = requests.post(
     "https://platform.ringcentral.com/restapi/oauth/token",
     auth=(CLIENT_ID, CLIENT_SECRET),
@@ -19,7 +20,20 @@ response = requests.post(
 
 response.raise_for_status()
 
-token = response.json()["access_token"]
+access_token = response.json()["access_token"]
 
 print("✅ Access Token obtenido")
-print(token[:20] + "...")
+
+# Obtener extensiones
+response = requests.get(
+    "https://platform.ringcentral.com/restapi/v1.0/account/~/extension?perPage=1000",
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    }
+)
+
+response.raise_for_status()
+
+data = response.json()
+
+print(f"✅ Extensiones encontradas: {len(data['records'])}")
