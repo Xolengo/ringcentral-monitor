@@ -1,0 +1,16 @@
+name: RingCentral Call Log
+
+on:
+  workflow_dispatch:
+
+jobs:
+  calllog:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Consultar llamadas
+      run: |
+        curl -s \
+        "https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/call-log?view=Simple" \
+        -H "Authorization: Bearer ${{ secrets.RINGCENTRAL_ACCESS_TOKEN }}"
