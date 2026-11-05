@@ -1,7 +1,8 @@
 import os
 import requests
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from collections import defaultdict
 
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
@@ -27,8 +28,10 @@ access_token = response.json()["access_token"]
 
 print("✅ Access Token obtenido")
 
-# Calcular día anterior completo
-hoy = datetime.now(timezone.utc)
+# Calcular ayer en horario CDMX
+tz = ZoneInfo("America/Mexico_City")
+
+hoy = datetime.now(tz)
 
 ayer_inicio = (
     hoy - timedelta(days=1)
@@ -41,11 +44,11 @@ ayer_inicio = (
 
 ayer_fin = ayer_inicio + timedelta(days=1)
 
-date_from = ayer_inicio.isoformat().replace("+00:00", "Z")
-date_to = ayer_fin.isoformat().replace("+00:00", "Z")
+date_from = ayer_inicio.isoformat()
+date_to = ayer_fin.isoformat()
 
-print(f"📅 Desde: {date_from}")
-print(f"📅 Hasta: {date_to}")
+print(f"📅 Consultando desde: {date_from}")
+print(f"📅 Consultando hasta: {date_to}")
 
 # Obtener extensiones
 response = requests.get(
