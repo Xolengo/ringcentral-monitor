@@ -250,6 +250,8 @@ response = requests.post(
     }
 )
 
+print(f"SMS_FROM={SMS_FROM}")
+print(f"SMS_TO={SMS_TO}")
 print(f"SMS Status: {response.status_code}")
 print(f"SMS Body: {response.text}")
 
