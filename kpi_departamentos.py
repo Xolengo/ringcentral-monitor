@@ -254,16 +254,15 @@ efectividad_global = (
 )
 
 sms_text = (
-    "📊 KPI RINGCENTRAL - AYER\n"
-    "De todo el sistema de telefonía\n\n"
-    f"Total llamadas: {global_total}\n"
-    f"✅ Connected: {global_connected}\n"
-    f"📞 Busy: {global_busy}\n"
-    f"⏳ No Answer: {global_no_answer}\n"
-    f"☎️ Hang Up: {global_hang_up}\n"
-    f"❌ Wrong Number: {global_wrong_number}\n"
-    f"🚨 Call Failed: {global_call_failed}\n"
-    f"🎯 Efectividad: {efectividad_global:.1f}%"
+    f"KPI AYER\n"
+    f"Total:{global_total}\n"
+    f"Conn:{global_connected}\n"
+    f"Busy:{global_busy}\n"
+    f"NoAns:{global_no_answer}\n"
+    f"HangUp:{global_hang_up}\n"
+    f"Wrong:{global_wrong_number}\n"
+    f"Failed:{global_call_failed}\n"
+    f"Efec:{efectividad_global:.1f}%"
 )
 
 response = requests.post(
