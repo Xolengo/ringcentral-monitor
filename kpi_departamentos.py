@@ -265,27 +265,30 @@ sms_text = (
     f"Efec:{efectividad_global:.1f}%"
 )
 
-response = requests.post(
-    "https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/sms",
-    headers={
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    },
-    json={
-        "from": {
-            "phoneNumber": SMS_FROM
+for numero in SMS_TO.split(","):
+
+    response = requests.post(
+        "https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/sms",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
         },
-        "to": [
-            {"phoneNumber": n.strip()}
-            for n in SMS_TO.split(",")
-        ],
-        "text": sms_text
-    }
-)
+        json={
+            "from": {
+                "phoneNumber": SMS_FROM
+            },
+            "to": [
+                {
+                    "phoneNumber": numero.strip()
+                }
+            ],
+            "text": sms_text
+        }
+    )
 
-print(f"SMS Status: {response.status_code}")
-print(f"SMS Body: {response.text}")
+    print(f"SMS para {numero}: {response.status_code}")
+    print(response.text)
 
-response.raise_for_status()
+    response.raise_for_status()
 
-print("✅ SMS enviado")
+print("✅ Todos los SMS enviados")
