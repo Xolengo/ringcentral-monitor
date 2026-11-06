@@ -68,7 +68,7 @@ extensions = response.json()["records"]
 
 print(f"✅ Extensiones encontradas: {len(extensions)}")
 
-# Crear mapa extensionId -> departamento
+# Crear mapa ExtensionId -> Departamento o Nombre
 dept_map = {}
 
 for ext in extensions:
@@ -76,15 +76,15 @@ for ext in extensions:
     ext_id = str(ext["id"])
 
     depto = (
-    ext.get("contact", {}).get("department")
-    or f"[{ext.get('type')}] {ext.get('name')}"
+        ext.get("contact", {}).get("department")
+        or f"[{ext.get('type')}] {ext.get('name')}"
     )
 
     dept_map[ext_id] = depto
 
 print(f"✅ Departamentos cargados: {len(dept_map)}")
 
-# Obtener TODO el Call Log de ayer
+# Obtener Call Log
 calls = []
 page = 1
 
@@ -108,16 +108,11 @@ while True:
 
     data = response.json()
 
-    registros = data.get(
-        "records",
-        []
-    )
+    registros = data.get("records", [])
 
     calls.extend(registros)
 
-    print(
-        f"📞 Página {page}: {len(registros)} llamadas"
-    )
+    print(f"📞 Página {page}: {len(registros)} llamadas")
 
     if len(registros) < 1000:
         break
@@ -139,12 +134,7 @@ stats = defaultdict(lambda: {
 
 for call in calls:
 
-    ext_id = call.get(
-        "from",
-        {}
-    ).get(
-        "extensionId"
-    )
+    ext_id = call.get("from", {}).get("extensionId")
 
     if not ext_id:
         continue
@@ -154,10 +144,7 @@ for call in calls:
         "Sin departamento"
     )
 
-    resultado = call.get(
-        "result",
-        ""
-    )
+    resultado = call.get("result", "")
 
     stats[depto]["total"] += 1
 
@@ -182,7 +169,7 @@ for call in calls:
     ]:
         stats[depto]["call_failed"] += 1
 
-# Crear mensaje para RingCentral Chat
+# Crear mensaje
 mensaje = "📊 KPI RINGCENTRAL - AYER\n\n"
 mensaje += f"📅 Desde: {date_from}\n"
 mensaje += f"📅 Hasta: {date_to}\n\n"
@@ -225,12 +212,9 @@ for depto, valores in sorted(
         f"🎯 Efectividad: {efectividad:.1f}%\n\n"
     )
 
-print("\n==============================")
-print("MENSAJE PARA RINGCENTRAL CHAT")
-print("==============================")
 print(mensaje)
 
-# Enviar mensaje al chat de RingCentral
+# Enviar a Chat RingCentral
 response = requests.post(
     f"https://platform.ringcentral.com/restapi/v1.0/glip/chats/{CHAT_ID}/posts",
     headers={
@@ -245,8 +229,8 @@ response = requests.post(
 response.raise_for_status()
 
 print("✅ KPI enviado a RingCentral Chat")
-# Enviar SMS de prueba
 
+# Enviar SMS de prueba
 response = requests.post(
     "https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/sms",
     headers={
@@ -265,6 +249,9 @@ response = requests.post(
         "text": "Prueba SMS desde GitHub Actions"
     }
 )
+
+print(f"SMS Status: {response.status_code}")
+print(f"SMS Body: {response.text}")
 
 response.raise_for_status()
 
