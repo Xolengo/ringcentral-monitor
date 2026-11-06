@@ -254,7 +254,7 @@ efectividad_global = (
 )
 
 sms_text = (
-    f"Codigo\n"
+    f"Tu código es\n"
     f"RingCentral Todas las calls de AYER\n"
     f"Total:{global_total}\n"
     f"Conn:{global_connected}\n"
