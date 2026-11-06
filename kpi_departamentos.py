@@ -276,9 +276,8 @@ response = requests.post(
             "phoneNumber": SMS_FROM
         },
         "to": [
-            {
-                "phoneNumber": SMS_TO
-            }
+            {"phoneNumber": n.strip()}
+            for n in SMS_TO.split(",")
         ],
         "text": sms_text
     }
