@@ -230,7 +230,42 @@ response.raise_for_status()
 
 print("✅ KPI enviado a RingCentral Chat")
 
-# Enviar SMS de prueba
+# KPI GLOBAL PARA SMS
+global_total = 0
+global_connected = 0
+global_busy = 0
+global_no_answer = 0
+global_hang_up = 0
+global_wrong_number = 0
+global_call_failed = 0
+
+for valores in stats.values():
+    global_total += valores["total"]
+    global_connected += valores["connected"]
+    global_busy += valores["busy"]
+    global_no_answer += valores["no_answer"]
+    global_hang_up += valores["hang_up"]
+    global_wrong_number += valores["wrong_number"]
+    global_call_failed += valores["call_failed"]
+
+efectividad_global = (
+    global_connected / global_total * 100
+    if global_total > 0 else 0
+)
+
+sms_text = (
+    "📊 KPI RINGCENTRAL - AYER\n"
+    "De todo el sistema de telefonía\n\n"
+    f"Total llamadas: {global_total}\n"
+    f"✅ Connected: {global_connected}\n"
+    f"📞 Busy: {global_busy}\n"
+    f"⏳ No Answer: {global_no_answer}\n"
+    f"☎️ Hang Up: {global_hang_up}\n"
+    f"❌ Wrong Number: {global_wrong_number}\n"
+    f"🚨 Call Failed: {global_call_failed}\n"
+    f"🎯 Efectividad: {efectividad_global:.1f}%"
+)
+
 response = requests.post(
     "https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/sms",
     headers={
@@ -246,12 +281,10 @@ response = requests.post(
                 "phoneNumber": SMS_TO
             }
         ],
-        "text": "Prueba SMS desde GitHub Actions"
+        "text": sms_text
     }
 )
 
-print(f"SMS_FROM={SMS_FROM}")
-print(f"SMS_TO={SMS_TO}")
 print(f"SMS Status: {response.status_code}")
 print(f"SMS Body: {response.text}")
 
