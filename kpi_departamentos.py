@@ -254,7 +254,7 @@ efectividad_global = (
 )
 
 sms_text = (
-    f"KPI AYER\n"
+    f"KPI AYER OTP\n"
     f"Total:{global_total}\n"
     f"Conn:{global_connected}\n"
     f"Busy:{global_busy}\n"
